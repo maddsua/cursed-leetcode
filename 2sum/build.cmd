@@ -1,0 +1,1 @@
+gcc main.c -lwinmm -o main.exe
