@@ -21,8 +21,8 @@ sumpair findTwosumDumbWay(const int target, const int* data, const size_t dataSi
 
 	sumpair result = {0, 0};
 
-	for (size_t m = 0; m < dataSize; m++) {
-		for (size_t n = 0; n < dataSize; n++) {
+	for (int m = 0; m < dataSize; m++) {
+		for (int n = 0; n < dataSize; n++) {
 			if (data[m] + data[n] == target) {
 				result.a = m;
 				result.b = n;
@@ -126,28 +126,28 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
-/*
+
 int* twoSum(int* nums, int numsSize, int target, int* returnSize){
 
 	*returnSize = 0;
 
-	size_t maxInt = 0;
+	int maxInt = 0;
+	int minInt = 0;
 
 	for (size_t i = 0; i < numsSize; i++) {
 		if (nums[i] > maxInt) maxInt = nums[i];
+		if (nums[i] < minInt) minInt = nums[i];
 	}
 
-	const size_t poolSize = (maxInt + 1) * sizeof(poolitem);
-	poolitem* pool = malloc(poolSize);
-	memset(pool, 0, poolSize);
+	int indexShift = abs(minInt);
+	size_t delta = maxInt + indexShift;
+
+	const size_t poolSize = (delta + 1) * sizeof(int);
+	int* diffs = malloc(poolSize);
+	memset(diffs, 0, poolSize);
 
 	for (size_t i = 0; i < numsSize; i++) {
-		if (nums[i] > target) {
-			pool[nums[i]].valid = false;
-			continue;
-		}
-		pool[nums[i]].valid = true;
-		pool[nums[i]].diff = target - nums[i];
+		diffs[nums[i] + indexShift] = target - nums[i];
 	}
 
 	int* result = malloc(2 * sizeof(int));
@@ -155,32 +155,30 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize){
 	for (size_t m = 0; m < numsSize; m++) {
 
 		const int val = nums[m];
+		const int idx = val + indexShift;
 
-		if (!pool[val].valid) continue;
-
-		if (val + pool[val].diff == target) {
+		if (val + diffs[idx] == target) {
 
 			result[0] = m;
-			const int diff = pool[val].diff;
+			const int diff = diffs[idx];
 
 			for (size_t n = 0; n < numsSize; n++) {
 
-				if (nums[n] == diff) {
-					
-					if (m == n) continue;
+				if (nums[n] != diff) continue;
+				if (m == n) continue;
 
-					result[1] = n;
-					free(pool);
-					*returnSize = 2;
-					return result;
-				}
+				result[1] = n;
+				*returnSize = 2;
+				free(diffs);
+				return result;
 			}
 		}
 	}
 
-	free(pool);
+	free(diffs);
 	return result;
-}*/
+}
+
 
 
 /*
