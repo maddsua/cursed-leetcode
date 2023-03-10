@@ -5,21 +5,17 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <windows.h>
 
 #define twosumdataSize	(3)
-const int twosumtarget = 6;
-const int twosumdata[twosumdataSize] = {3,2,4};
+const int twosumtarget = 0;
+const int twosumdata[twosumdataSize] = {0,3,-3};
 
 typedef struct sumpair {
 	int a;
 	int b;
 } sumpair;
-
-typedef struct poolitem {
-	int diff;
-	bool valid;
-} poolitem;
 
 sumpair findTwosumDumbWay(const int target, const int* data, const size_t dataSize) {
 
@@ -40,23 +36,23 @@ sumpair findTwosumDumbWay(const int target, const int* data, const size_t dataSi
 
 sumpair findTwosumSmortWay(const int target, const int* data, const size_t dataSize) {
 
-	size_t maxInt = 0;
+	int maxInt = 0;
+	int minInt = 0;
 
 	for (size_t i = 0; i < dataSize; i++) {
 		if (data[i] > maxInt) maxInt = data[i];
+		if (data[i] < minInt) minInt = data[i];
 	}
 
-	const size_t poolSize = (maxInt + 1) * sizeof(poolitem);
-	poolitem* pool = malloc(poolSize);
-	memset(pool, 0, poolSize);
+	int indexShift = abs(minInt);
+	size_t delta = maxInt + indexShift;
+
+	const size_t poolSize = (delta + 1) * sizeof(int);
+	int* diffs = malloc(poolSize);
+	memset(diffs, 0, poolSize);
 
 	for (size_t i = 0; i < dataSize; i++) {
-		if (data[i] > target) {
-			pool[data[i]].valid = false;
-			continue;
-		}
-		pool[data[i]].valid = true;
-		pool[data[i]].diff = target - data[i];
+		diffs[data[i] + indexShift] = target - data[i];
 	}
 
 	sumpair result = {-1, -1};
@@ -64,29 +60,26 @@ sumpair findTwosumSmortWay(const int target, const int* data, const size_t dataS
 	for (size_t m = 0; m < dataSize; m++) {
 
 		const int val = data[m];
+		const int idx = val + indexShift;
 
-		if (!pool[val].valid) continue;
-
-		if (val + pool[val].diff == target) {
+		if (val + diffs[idx] == target) {
 
 			result.a = m;
-			const int diff = pool[val].diff;
+			const int diff = diffs[idx];
 
 			for (size_t n = 0; n < dataSize; n++) {
 
-				if (data[n] == diff) {
-					
-					if (m == n) continue;
+				if (data[n] != diff) continue;
+				if (m == n) continue;
 
-					result.b = n;
-					free(pool);
-					return result;
-				}
+				result.b = n;
+				free(diffs);
+				return result;
 			}
 		}
 	}
 
-	free(pool);
+	free(diffs);
 	memset(&result, -1, sizeof(result));
 	return result;
 }
@@ -133,6 +126,7 @@ int main(int argc, char const *argv[]) {
 	return 0;
 }
 
+/*
 int* twoSum(int* nums, int numsSize, int target, int* returnSize){
 
 	*returnSize = 0;
@@ -186,7 +180,7 @@ int* twoSum(int* nums, int numsSize, int target, int* returnSize){
 
 	free(pool);
 	return result;
-}
+}*/
 
 
 /*
